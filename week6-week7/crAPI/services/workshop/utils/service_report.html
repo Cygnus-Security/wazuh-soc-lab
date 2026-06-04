@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Report - {{ service.id }}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+            background-color: #f9fafb;
+            margin: 0;
+            padding: 20px; /* Reduced top/bottom padding */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .page-container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .service-report-header {
+            background-color: #ffffff;
+            padding: 12px 24px; /* Reduced vertical padding */
+            border-bottom: 1px solid #f0f0f0;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .report-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            padding-top: 24px;
+        }
+
+        .service-report-card, .comments-card, .info-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            margin-bottom: 24px;
+            padding: 0; /* Padding is now on section-title and content */
+            position: relative;
+        }
+
+        h1 { font-size: 22px; margin: 0; color: #1f2937; font-weight: 600; }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+            padding: 12px 24px;
+            border-bottom: 1px solid #f3f4f6;
+            background-color: #f5f3ff; /* Darker purple background */
+            border-radius: 8px 8px 0 0;
+        }
+
+        .card-content {
+            padding: 12px 24px 20px 24px; /* Padding for card content */
+        }
+        
+        .descriptions-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .descriptions-table td {
+            padding: 6px 4px; /* Reduced vertical padding */
+            vertical-align: top;
+            font-size: 13px; /* Slightly smaller for compactness */
+        }
+        .descriptions-label {
+            font-weight: 600;
+            color: #4b5563;
+            width: 140px;
+        }
+        .descriptions-content {
+            color: #374151;
+        }
+        p { line-height: 1.5; margin: 2px 0; }
+
+        .timeline {
+            margin-top: 12px;
+        }
+        .timeline-item {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .timeline-label {
+            flex-shrink: 0;
+            width: 140px;
+            color: #6b7280;
+            font-size: 11px;
+        }
+        .timeline-content {
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .report-status {
+            position: absolute;
+            top: 12px;
+            right: 24px;
+            padding: 4px 12px;
+            border-radius: 9999px; /* This makes it fully rounded */
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase; /* Ensures ALL CAPS */
+        }
+        .completed { background-color: #dcfce7; color: #166534; }
+        .in-progress { background-color: #dbeafe; color: #312e81; }
+        .pending { background-color: #fef9c3; color: #854d0e; }
+
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        <div class="service-report-header">
+            <div>
+                <h1>Service Report</h1>
+                <p style="font-size: 15px; color: #6b7280; margin-top: 2px;">
+                    Vehicle VIN: <span style="font-weight: bold; color: #8b5cf6;">{{ service.vehicle.vin }}</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="report-grid">
+            <div>
+                <div class="service-report-card">
+                    <div class="report-status {{ service.status|slugify }}">{{ service.status|upper }}</div>
+                    <div class="section-title">Report Details</div>
+                    <div class="card-content">
+                        <table class="descriptions-table">
+                            <tbody>
+                                <tr>
+                                    <td class="descriptions-label">Report ID</td>
+                                    <td class="descriptions-content">{{ service.id }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="descriptions-label">Service Status</td>
+                                    <td class="descriptions-content">{{ service.status }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="descriptions-label">Created On</td>
+                                    <td class="descriptions-content">{{ service.created_on }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="descriptions-label">Problem Details</td>
+                                    <td class="descriptions-content" style="white-space: pre-wrap;">{{ service.problem_details }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="comments-card">
+                    <div class="section-title">Service Comments</div>
+                    <div class="card-content">
+                        <div class="timeline">
+                            {% for comment in service.comments %}
+                            <div class="timeline-item">
+                                <div class="timeline-label">{{ comment.created_on }}</div>
+                                <div class="timeline-content">{{ comment.comment }}</div>
+                            </div>
+                            {% empty %}
+                            <p style="color: #9ca3af; font-style: italic;">No comments available for this service.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="info-card">
+                    <div class="section-title">Assigned Mechanic</div>
+                    <div class="card-content">
+                        <table class="descriptions-table">
+                            <tbody>
+                                <tr>
+                                    <td class="descriptions-label">Mechanic Code</td>
+                                    <td class="descriptions-content">{{ service.mechanic.mechanic_code }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="descriptions-label">Mechanic Email</td>
+                                    <td class="descriptions-content">{{ service.mechanic.user.email }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="section-title">Vehicle Information</div>
+                    <div class="card-content">
+                        <table class="descriptions-table">
+                            <tbody>
+                                <tr>
+                                    <td class="descriptions-label">Vehicle VIN</td>
+                                    <td class="descriptions-content">{{ service.vehicle.vin }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="section-title">Owner Information</div>
+                    <div class="card-content">
+                        <table class="descriptions-table">
+                            <tbody>
+                                <tr>
+                                    <td class="descriptions-label">Owner Email</td>
+                                    <td class="descriptions-content">{{ service.vehicle.owner.email }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="descriptions-label">Owner Phone</td>
+                                    <td class="descriptions-content">{{ service.vehicle.owner.number }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

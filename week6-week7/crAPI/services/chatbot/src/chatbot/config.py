@@ -1,0 +1,39 @@
+import os
+
+from dotenv import load_dotenv
+
+from .dbconnections import CHROMA_HOST, CHROMA_PORT, MONGO_CONNECTION_URI
+
+load_dotenv()
+
+
+class Config:
+    SECRET_KEY = os.getenv("SECRET_KEY", "super-secret")
+    MONGO_URI = MONGO_CONNECTION_URI
+    LLM_PROVIDER = os.getenv("CHATBOT_LLM_PROVIDER", "openai").lower()
+    LLM_MODEL_NAME = os.getenv("CHATBOT_LLM_MODEL", "")
+    EMBEDDINGS_MODEL = os.getenv("CHATBOT_EMBEDDINGS_MODEL", "")
+    EMBEDDINGS_DIMENSIONS = int(os.getenv("CHATBOT_EMBEDDINGS_DIMENSIONS", "1536"))
+    OPENAI_API_KEY = os.getenv("CHATBOT_OPENAI_API_KEY")
+    OPENAI_BASE_URL = os.getenv("CHATBOT_OPENAI_BASE_URL")
+    ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+    COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+    AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+    AZURE_AD_TOKEN = os.getenv("AZURE_AD_TOKEN")
+    AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+    AZURE_OPENAI_API_VERSION = os.getenv(
+        "AZURE_OPENAI_API_VERSION", "2024-02-15-preview"
+    )
+    AZURE_OPENAI_CHAT_DEPLOYMENT = os.getenv("AZURE_OPENAI_CHAT_DEPLOYMENT")
+    AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT = os.getenv("AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT")
+    AWS_BEARER_TOKEN_BEDROCK = os.getenv("AWS_BEARER_TOKEN_BEDROCK")
+    AWS_ASSUME_ROLE_ARN = os.getenv("AWS_ASSUME_ROLE_ARN", "")
+    AWS_EXTERNAL_ID = os.getenv("AWS_EXTERNAL_ID", "")
+    AWS_ROLE_SESSION_NAME = os.getenv("AWS_ROLE_SESSION_NAME", "crapi-chatbot-session")
+    VERTEX_PROJECT = os.getenv("VERTEX_PROJECT", "")
+    VERTEX_LOCATION = os.getenv("VERTEX_LOCATION", "")
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", 50000))
+    CHROMA_HOST = CHROMA_HOST
+    CHROMA_PORT = CHROMA_PORT

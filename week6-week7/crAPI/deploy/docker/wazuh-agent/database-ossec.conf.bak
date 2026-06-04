@@ -1,0 +1,19 @@
+<ossec_config>
+  <client>
+    <server>
+      <address>single-node-wazuh.manager-1</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+  </client>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/postgres_shared/postgresql.log</location>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/mongodb_shared/mongod.log</location>
+  </localfile>
+</ossec_config>

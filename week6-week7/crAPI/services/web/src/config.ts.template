@@ -1,0 +1,9 @@
+export const crapienv: {
+    IDENTITY_SERVICE: string;
+    WORKSHOP_SERVICE: string;
+    COMMUNITY_SERVICE: string;
+} = {
+    IDENTITY_SERVICE: "identity/",
+    WORKSHOP_SERVICE: "workshop/",
+    COMMUNITY_SERVICE: "community/",
+};

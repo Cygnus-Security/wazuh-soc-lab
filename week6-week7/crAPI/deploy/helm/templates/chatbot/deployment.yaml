@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.chatbot.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- with .Values.chatbot.deploymentLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.chatbot.replicaCount }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.chatbot.deploymentSelectorMatchLabels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        release: {{ .Release.Name }}
+        {{- with .Values.chatbot.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.waitForK8sResources.image }}
+          imagePullPolicy: {{ .Values.waitForK8sResources.imagePullPolicy }}
+          args:
+            - "service"
+            - {{ .Values.postgresdb.service.name | quote }}
+        - name: wait-for-mongo
+          image: {{ .Values.waitForK8sResources.image }}
+          imagePullPolicy: {{ .Values.waitForK8sResources.imagePullPolicy }}
+          args:
+            - "service"
+            - {{ .Values.mongodb.service.name | quote }}
+        - name: wait-for-identity
+          image: {{ .Values.waitForK8sResources.image }}
+          imagePullPolicy: {{ .Values.waitForK8sResources.imagePullPolicy }}
+          args:
+            - "service"
+            - {{ .Values.identity.service.name | quote }}
+        - name: wait-for-chromadb
+          image: {{ .Values.waitForK8sResources.image }}
+          imagePullPolicy: {{ .Values.waitForK8sResources.imagePullPolicy }}
+          args:
+            - "service"
+            - {{ .Values.chromadb.service.name | quote }}
+      containers:
+        - name: {{ .Values.chatbot.name }}
+          image: {{ .Values.chatbot.image }}:{{ .Chart.AppVersion }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.chatbot.port }}
+            - containerPort: {{ .Values.chatbot.mcpPort }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.chatbot.config.name }}
+          {{- if .Values.chatbot.resources }}
+          resources:
+            {{- toYaml .Values.chatbot.resources | nindent 12 }}
+          {{- end }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.chatbot.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 10

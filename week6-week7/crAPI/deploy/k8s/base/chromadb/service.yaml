@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crapi-chromadb
+  labels:
+    app: crapi-chromadb
+spec:
+  ports:
+  - port: 8000
+    name: chromadb
+  selector:
+    app: crapi-chromadb

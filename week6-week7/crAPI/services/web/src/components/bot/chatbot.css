@@ -1,0 +1,205 @@
+.app-chatbot-container {
+    position: fixed;
+    bottom: var(--spacing-lg);
+    left: var(--spacing-lg);
+    display: inline-block;
+    z-index: 1000;
+}
+
+
+.expand-chatbot-btn {
+  border: none;
+  outline: none;
+  position: absolute;
+  right: 40px;
+  top: 10px;
+  margin-right: 5px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: rgb(232, 234, 237);
+  font-weight: 1000;
+  width: 32px;
+  height: 32px;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+
+.expand-chatbot-btn:hover {
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.expand-chatbot-btn:focus {
+  outline: none;
+  border: none;
+}
+
+/* Delete chat button */
+.delete-chat-btn {
+  border: none;
+  outline: none;
+  position: absolute;
+  right: 80px;
+  top: 10px;
+  margin-right: 5px;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: rgb(232, 234, 237);
+  font-weight: 1000;
+  width: 32px;
+  height: 32px;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.delete-chat-btn:hover {
+  color: #ffffff;
+  transform: scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.delete-chat-btn:focus {
+  outline: none;
+  border: none;
+}
+
+.delete-chat-btn:active {
+  transform: scale(0.95);
+}
+
+
+.expand-chatbot-btn:after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 0;
+	height: 0;
+	background-color: rgba(0, 0, 0, 0.1);
+	border-radius: 50%;
+	opacity: 0;
+	transition: width 0.2s ease-out, height 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+
+/* Enhanced chatbot trigger button */
+.app-chatbot-button {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  left: var(--spacing-lg);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  transition: all var(--transition-normal);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.app-chatbot-button:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, #7c3aed, #9333ea);
+}
+
+.app-chatbot-button:active {
+  transform: scale(0.95);
+}
+
+/* Expanded chatbot window styling */
+.app-chatbot-container.expanded .rcb-chat-window {
+  width: max(50vw, 500px) !important;
+  height: 90vh !important;
+  min-height: 50vh !important;
+  min-width: 500px !important;
+}
+
+.rcb-bot-avatar {
+  background: fixed;
+}
+
+.rcb-chat-footer-container {
+  display: none;
+}
+
+input[type="password"] {
+  width: 79%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background-color: #f3f4f6;
+  font-size: 14px;
+  color: #374151;
+  margin: 8px 0;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+input[type="password"]:focus {
+  border-color: #8b5cf6;
+  background-color: #ffffff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input[type="password"]::placeholder {
+  color: #a3a3a3;
+  font-style: italic;
+}
+
+/* Smaller markdown headers in chat messages */
+.rcb-bot-message h1,
+.rcb-bot-message h2,
+.rcb-bot-message h3,
+.rcb-bot-message h4,
+.rcb-bot-message h5,
+.rcb-bot-message h6 {
+  font-weight: 600 !important;
+  margin: 0.75em 0 0.25em 0 !important;
+  line-height: 1.3 !important;
+}
+
+.rcb-bot-message h1 {
+  font-size: 1.2em !important;
+}
+
+.rcb-bot-message h2 {
+  font-size: 1.15em !important;
+}
+
+.rcb-bot-message h3 {
+  font-size: 1.1em !important;
+}
+
+.rcb-bot-message h4 {
+  font-size: 1.05em !important;
+}
+
+.rcb-bot-message h5 {
+  font-size: 1.025em !important;
+}
+
+.rcb-bot-message h6 {
+  font-size: 1em !important;
+}

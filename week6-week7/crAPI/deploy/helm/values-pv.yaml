@@ -1,0 +1,56 @@
+mongodb:
+  storage: 
+    type: "manual"
+    pv:
+      name: mongodb-pv
+      labels:
+        app: mongodb
+      resources:
+        storage: 2Gi
+      hostPath: /mnt/mongodb
+      accessModes: ReadWriteOnce
+    pvc:
+      name: mongodb-pv-claim
+      labels:
+        app: mongodb
+      resources:
+        requests:
+          storage: 2Gi
+
+postgresdb:
+  storage:
+    type: "manual"
+    pv:
+      name: postgres-pv
+      labels:
+        app: postgresdb
+      resources:
+        storage: 2Gi
+      hostPath: /mnt/postgresdb
+    pvc:
+      name: postgres-pv-claim
+      labels:
+        app: postgresdb
+      accessModes: ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
+
+chatbot:
+  storage:
+    type: "manual"
+    pv:
+      name: chatbot-vectors-pv
+      labels:
+        app: crapi-chatbot
+      resources:
+        storage: 1Gi
+      hostPath: /mnt/vectorstore
+    type: "default"
+    pvc:
+      name: chatbot-vectors-pv-claim
+      labels:
+        app: crapi-chatbot
+      resources:
+        requests:
+          storage: 1Gi
