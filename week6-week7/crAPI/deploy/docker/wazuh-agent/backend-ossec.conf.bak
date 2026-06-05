@@ -1,0 +1,24 @@
+<ossec_config>
+  <client>
+    <server>
+      <address>single-node-wazuh.manager-1</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+  </client>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/crapi_identity_shared/*.log</location>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/crapi_community_shared/*.log</location>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/crapi_workshop_shared/*.log</location>
+  </localfile>
+</ossec_config>

@@ -1,0 +1,430 @@
+/* ===== CONTACT MECHANIC PAGE MODERN DESIGN ===== */
+
+/* Page Container */
+.contact-mechanic-page {
+  min-height: calc(100vh - 56px);
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.1) 0%,
+    rgba(236, 72, 153, 0.1) 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  padding: var(--spacing-xl) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Form Container */
+.contact-mechanic-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Main Form Card */
+.contact-mechanic-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  padding: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+}
+
+.contact-mechanic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5cf6, #a855f7, #c084fc);
+}
+
+.contact-mechanic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.15),
+    0 15px 30px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Card Header */
+.contact-mechanic-card .ant-card-head {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+  padding: var(--spacing-xl);
+  text-align: center;
+}
+
+.contact-mechanic-card .ant-card-head-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.contact-mechanic-card .ant-card-body {
+  padding: var(--spacing-xl) calc(var(--spacing-xl) * 1.5);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+/* Form Styling */
+.contact-mechanic-form {
+  width: 100%;
+}
+
+.contact-mechanic-form .ant-form-item {
+  margin-bottom: var(--spacing-lg);
+}
+
+.contact-mechanic-form .ant-form-item-label {
+  padding-bottom: var(--spacing-sm);
+}
+
+.contact-mechanic-form .ant-form-item-label > label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  height: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.contact-mechanic-form .ant-form-item-label > label::before {
+  display: none;
+}
+
+.contact-mechanic-form .ant-form-item-required::before {
+  display: inline-block;
+  margin-right: 4px;
+  color: #ef4444;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1;
+  content: '*';
+}
+
+/* Form Controls */
+.contact-mechanic-form .ant-input,
+.contact-mechanic-form .ant-select-selector,
+.contact-mechanic-form .ant-input[disabled] {
+  border: 2px solid #e5e7eb;
+  border-radius: var(--border-radius-lg);
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.contact-mechanic-form .ant-input:focus,
+.contact-mechanic-form .ant-input-focused,
+.contact-mechanic-form .ant-select-focused .ant-select-selector {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  outline: none;
+}
+
+.contact-mechanic-form .ant-input[disabled] {
+  background: rgba(249, 250, 251, 0.8);
+  color: #6b7280;
+  cursor: not-allowed;
+  border-color: #d1d5db;
+}
+
+/* Textarea */
+.contact-mechanic-form .ant-input {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+/* Select Dropdown */
+.contact-mechanic-form .ant-select {
+  width: 100%;
+}
+
+.contact-mechanic-form .ant-select-dropdown {
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+}
+
+.contact-mechanic-form .ant-select-item {
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.contact-mechanic-form .ant-select-item-option-selected {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.contact-mechanic-form .ant-select-item:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+/* Submit Button */
+.submit-service-request-btn {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: var(--border-radius-lg);
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 8px 25px rgba(139, 92, 246, 0.4),
+    0 4px 12px rgba(139, 92, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+  margin-top: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.submit-service-request-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.submit-service-request-btn:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 12px 35px rgba(139, 92, 246, 0.5),
+    0 6px 16px rgba(139, 92, 246, 0.4);
+}
+
+.submit-service-request-btn:hover::before {
+  left: 100%;
+}
+
+.submit-service-request-btn:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 6px 20px rgba(139, 92, 246, 0.4),
+    0 3px 8px rgba(139, 92, 246, 0.3);
+}
+
+/* Error Message */
+.error-message {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Page Title */
+.page-title {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-title h1 {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 var(--spacing-sm) 0;
+  background: linear-gradient(135deg, #1f2937 0%, #4b5563 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.page-title p {
+  font-size: 18px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Form Section Titles */
+.form-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.1);
+}
+
+/* Vehicle Info Section */
+.vehicle-info-section {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.05) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Mechanic Selection Section */
+.mechanic-selection-section {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(5, 150, 105, 0.05) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Problem Description Section */
+.problem-description-section {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(217, 119, 6, 0.05) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-mechanic-page {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .contact-mechanic-container {
+    max-width: 100%;
+  }
+  
+  .contact-mechanic-card .ant-card-head,
+  .contact-mechanic-card .ant-card-body {
+    padding: var(--spacing-lg);
+  }
+  
+  .contact-mechanic-card .ant-card-head-title {
+    font-size: 24px;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .page-title h1 {
+    font-size: 28px;
+  }
+  
+  .page-title p {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .contact-mechanic-page {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+  
+  .contact-mechanic-card .ant-card-head,
+  .contact-mechanic-card .ant-card-body {
+    padding: var(--spacing-md);
+  }
+  
+  .contact-mechanic-card .ant-card-head-title {
+    font-size: 20px;
+  }
+  
+  .contact-mechanic-form .ant-input,
+  .contact-mechanic-form .ant-select-selector {
+    font-size: 16px;
+    padding: 10px 14px;
+  }
+  
+  .submit-service-request-btn {
+    height: 46px;
+    font-size: 15px;
+  }
+  
+  .page-title h1 {
+    font-size: 24px;
+  }
+  
+  .page-title p {
+    font-size: 15px;
+  }
+}
+
+/* Loading State */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  z-index: 10;
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contact-mechanic-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Form Validation */
+.ant-form-item-has-error .ant-input,
+.ant-form-item-has-error .ant-select-selector {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.ant-form-item-explain-error {
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}

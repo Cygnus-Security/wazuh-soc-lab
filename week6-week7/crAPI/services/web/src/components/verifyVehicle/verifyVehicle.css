@@ -1,0 +1,56 @@
+  .add-vehicle-container .ant-row {
+    align-items: stretch;
+    gap: calc(var(--spacing-md) * 2) !important;
+  }
+
+  .add-vehicle-card {
+    height: 100%;
+    width: 100%;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .add-vehicle-card .ant-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .vehicle-alert {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  
+  .vehicle-alert .ant-alert-message {
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .vehicle-alert .ant-alert-description {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  
+  .verify-vehicle-form .ant-form-item {
+    margin-bottom: 12px;
+  }
+  
+  .verify-vehicle-form .ant-form-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 768px) {
+    .add-vehicle-card {
+      min-height: auto;
+    }
+
+    .add-vehicle-container .ant-col {
+      margin-bottom: 20px;
+    }
+
+    .add-vehicle-container .ant-row {
+      gap: var(--spacing-md);
+    }
+  }

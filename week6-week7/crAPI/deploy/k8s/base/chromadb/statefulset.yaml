@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: crapi-chromadb
+  labels:
+    app: crapi-chromadb
+spec:
+  serviceName: crapi-chromadb
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crapi-chromadb
+  template:
+    metadata:
+      labels:
+        app: crapi-chromadb
+    spec:
+      containers:
+        - name: chromadb
+          image: chromadb/chroma:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: chromadb-config
+          volumeMounts:
+            - mountPath: /data
+              name: chromadb-data
+      volumes:
+        - name: chromadb-data
+          persistentVolumeClaim:
+            claimName: chromadb-pv-claim

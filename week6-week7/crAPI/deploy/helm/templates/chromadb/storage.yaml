@@ -1,0 +1,34 @@
+{{- if eq .Values.chromadb.storage.type "manual" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.chromadb.storage.pv.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.chromadb.storage.pv.labels | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.chromadb.storage.type }}
+  capacity:
+    storage: {{ .Values.chromadb.storage.pv.resources.storage }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.chromadb.storage.pv.hostPath }}
+---
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.chromadb.storage.pvc.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.chromadb.storage.pvc.labels | nindent 4 }}
+spec:
+  {{- if ne .Values.chromadb.storage.type "default" }}
+  storageClassName: {{ .Values.chromadb.storage.type }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    {{- toYaml .Values.chromadb.storage.pvc.resources | nindent 4 }}
+

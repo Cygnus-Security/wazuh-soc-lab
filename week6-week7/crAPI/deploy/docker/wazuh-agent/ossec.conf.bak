@@ -1,0 +1,26 @@
+<ossec_config>
+  <client>
+    <server>
+      <address>single-node-wazuh.manager-1</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+    <config-profile>ubuntu, ubuntu18, ubuntu18.04</config-profile>
+  </client>
+
+  <active-response>
+    <disabled>no</disabled>
+    <ca_store>/var/ossec/etc/wpk_root.pem</ca_store>
+    <ca_verification>yes</ca_verification>
+  </active-response>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/nginx_shared/access.log</location>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/nginx_shared/error.log</location>
+  </localfile>
+</ossec_config>

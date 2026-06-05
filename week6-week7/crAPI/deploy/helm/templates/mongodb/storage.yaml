@@ -1,0 +1,34 @@
+{{- if eq .Values.mongodb.storage.type "manual" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.mongodb.storage.pv.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.mongodb.storage.pv.labels | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.mongodb.storage.type }}
+  capacity:
+    storage: {{ .Values.mongodb.storage.pv.resources.storage }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.mongodb.storage.pv.hostPath }}
+---
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.mongodb.storage.pvc.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.mongodb.storage.pvc.labels | nindent 4 }}
+spec:
+  {{- if ne .Values.mongodb.storage.type "default" }}
+  storageClassName: {{ .Values.mongodb.storage.type }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    {{- toYaml .Values.mongodb.storage.pvc.resources | nindent 4 }}
+
