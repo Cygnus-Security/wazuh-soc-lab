@@ -1,0 +1,29 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.key
+
+# Build and dependency output
+.gradle/
+build/
+dist/
+node_modules/
+__pycache__/
+*.py[cod]
+
+# Runtime data and logs
+*.log
+logs/
+*.pid
+*.db
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
+
+# Temporary and backup files
+*.bak
+*.bak.*
+*~
