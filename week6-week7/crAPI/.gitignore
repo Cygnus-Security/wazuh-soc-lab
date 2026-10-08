@@ -1,0 +1,8 @@
+deploy/vagrant/*.log
+deploy/vagrant/.vagrant
+.secrets
+.vscode/
+*.local
+services/chatbot/db
+services/certs/
+docker-compose.local.yml

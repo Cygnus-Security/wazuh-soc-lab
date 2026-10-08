@@ -1,0 +1,299 @@
+/* ===== SERVICE HISTORY PAGE MODERN DESIGN ===== */
+
+/* Page Header */
+.page-header {
+  padding-left: 0;
+  padding-right: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  border-radius: var(--border-radius-lg);
+  margin-bottom: var(--spacing-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Service Cards */
+.service-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-elevation-medium);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: var(--spacing-lg);
+  height: 100%;
+}
+
+.service-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #8b5cf6, #a855f7, #c084fc);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevation-high);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.service-card:hover::before {
+  opacity: 1;
+}
+
+.service-card .ant-card-head {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+}
+
+.service-card .ant-card-head-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.service-card .ant-card-body {
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(5px);
+}
+
+/* Service Meta Information */
+.service-meta {
+  margin-bottom: var(--spacing-md);
+}
+
+.service-meta .ant-card-meta-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #059669;
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.service-meta .ant-card-meta-description {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Service Details */
+.service-details {
+  margin: var(--spacing-md) 0;
+}
+
+.service-detail-item {
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.service-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8b5cf6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.service-detail-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Status Badge */
+.service-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-xs);
+}
+
+.service-status.completed {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.service-status.pending {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.15) 100%);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.service-status.in-progress {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.15) 100%);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* View Report Link */
+.view-report-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+  color: white;
+  text-decoration: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  margin-top: var(--spacing-md);
+  width: 100%;
+  justify-content: center;
+}
+
+.view-report-link:hover {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  color: white;
+  text-decoration: none;
+}
+
+.view-report-link:focus {
+  color: white;
+  text-decoration: none;
+}
+
+/* Page Container */
+.service-history-page {
+  background: linear-gradient(
+    135deg,
+    rgba(167, 139, 250, 0.1) 0%,
+    rgba(236, 72, 153, 0.1) 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  min-height: calc(100vh - 56px);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .ant-col-8 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .ant-col-8 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  
+  .service-card .ant-card-head-title {
+    font-size: 16px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+  
+  .service-detail-value {
+    font-size: 13px;
+  }
+  
+  .view-report-link {
+    padding: var(--spacing-md);
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .service-card {
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .service-card .ant-card-head,
+  .service-card .ant-card-body {
+    padding: var(--spacing-md);
+  }
+  
+  .service-details {
+    margin: var(--spacing-sm) 0;
+  }
+  
+  .service-detail-item {
+    margin-bottom: var(--spacing-xs);
+  }
+}
+
+/* Empty State */
+.empty-services {
+  text-align: center;
+  padding: calc(var(--spacing-xl) * 2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius-xl);
+  margin-top: var(--spacing-lg);
+}
+
+.empty-services h3 {
+  color: #6b7280;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+.empty-services p {
+  color: #9ca3af;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Loading Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.service-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.service-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.service-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+
+.service-card:nth-child(4) {
+  animation-delay: 0.3s;
+}

@@ -1,0 +1,11 @@
+{
+  "groups": [
+    {
+      "name": "server.ssl",
+      "type": "com.crapi.config.SSLConfig",
+      "sourceType": "com.crapi.config.SSLConfig"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

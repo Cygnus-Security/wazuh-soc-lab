@@ -1,0 +1,482 @@
+﻿# Licensed under the Apache License, Version 2.0 (the â€œLicenseâ€);
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an â€œAS ISâ€ BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions andx`
+# limitations under the License.
+
+# ==========================================
+# Cáº¤U HÃŒNH CRAPI - KIáº¾N TRÃšC Máº NG SOC (4 Lá»šP - IP Äá»˜NG)
+# ==========================================
+services:
+
+  # --- 1. ROUTER (GATEWAY) ---
+  network-router:
+    image: alpine
+    container_name: network-router
+    privileged: true
+    ports:
+      - "10.10.1.1:8888:8888" # Má»Ÿ cá»•ng Web
+      - "10.10.1.1:8025:8025" # Má»Ÿ cá»•ng Mail
+    command: >
+      sh -c "apk add --no-cache iptables grep &&
+             echo 1 > /proc/sys/net/ipv4/ip_forward && 
+             while ! ping -c 1 crapi-web >/dev/null 2>&1; do sleep 2; done;
+             while ! ping -c 1 mailhog >/dev/null 2>&1; do sleep 2; done;
+             WEB_IP=$$(ping -c 1 crapi-web | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n 1) &&
+             MAIL_IP=$$(ping -c 1 mailhog | grep -oE '[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | head -n 1) &&
+             iptables -t nat -A PREROUTING -p tcp --dport 8888 -j DNAT --to-destination $$WEB_IP:80 && 
+             iptables -t nat -A PREROUTING -p tcp --dport 8025 -j DNAT --to-destination $$MAIL_IP:8025 && 
+             iptables -t nat -A POSTROUTING -j MASQUERADE &&
+             tail -f /dev/null"
+    networks:
+      - external_net
+      - dmz_net
+      - wazuh_soc_lan
+
+  # --- 2. VÃ™NG DMZ ---
+  crapi-web:
+    container_name: crapi-web
+    image: crapi/crapi-web:${VERSION:-latest}
+    environment:
+      - COMMUNITY_SERVICE=crapi-community:${COMMUNITY_SERVER_PORT:-8087}
+      - IDENTITY_SERVICE=crapi-identity:${IDENTITY_SERVER_PORT:-8080}
+      - WORKSHOP_SERVICE=crapi-workshop:${WORKSHOP_SERVER_PORT:-8000}
+      - CHATBOT_SERVICE=crapi-chatbot:${CHATBOT_SERVER_PORT:-5002}
+      - MAILHOG_WEB_SERVICE=mailhog:8025
+      - TLS_ENABLED=${TLS_ENABLED:-false}
+    depends_on:
+      crapi-community:
+        condition: service_healthy
+      crapi-identity:
+        condition: service_healthy
+      crapi-workshop:
+        condition: service_healthy
+    healthcheck:
+      test: curl 0.0.0.0:80/health
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+    volumes:
+      - crapi-web-logs:/usr/local/openresty/nginx/logs # Äáº©y log vÃ o volume áº£o
+    networks:
+      - dmz_net
+      - backend_net
+      - wazuh_soc_lan
+
+  mailhog:
+    user: root
+    container_name: mailhog
+    image: crapi/mailhog:${VERSION:-latest}
+    environment:
+      MH_MONGO_URI: admin:crapisecretpassword@mongodb:27017
+      MH_STORAGE: mongodb
+    healthcheck:
+      test: [ "CMD", "nc", "-z", "localhost", "8025" ]
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+    networks:
+      - dmz_net
+      - database_net
+
+  # --- 3. VÃ™NG BACKEND ---
+  crapi-identity:
+    container_name: crapi-identity
+    image: crapi/crapi-identity:${VERSION:-latest}
+    volumes:
+      - ./keys:/app/keys
+      - crapi-identity-logs:/var/log/crapi-identity
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DB_NAME=crapi
+      - DB_USER=admin
+      - DB_PASSWORD=crapisecretpassword
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - SERVER_PORT=${IDENTITY_SERVER_PORT:-8080}
+      - ENABLE_SHELL_INJECTION=${ENABLE_SHELL_INJECTION:-false}
+      - JWT_SECRET=crapi
+      - MAILHOG_HOST=mailhog
+      - MAILHOG_PORT=1025
+      - MAILHOG_DOMAIN=example.com
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_EMAIL=user@example.com
+      - SMTP_PASS=xxxxxxxxxxxxxx
+      - SMTP_FROM=no-reply@example.com
+      - SMTP_AUTH=true
+      - SMTP_STARTTLS=true
+      - JWT_EXPIRATION=604800000
+      - ENABLE_LOG4J=${ENABLE_LOG4J:-false}
+      - API_GATEWAY_URL=https://api.mypremiumdealership.com
+      - TLS_ENABLED=${TLS_ENABLED:-false}
+      - TLS_KEYSTORE_TYPE=PKCS12
+      - TLS_KEYSTORE=classpath:certs/server.p12
+      - TLS_KEYSTORE_PASSWORD=passw0rd
+      - TLS_KEY_PASSWORD=passw0rd
+      - TLS_KEY_ALIAS=identity
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      mailhog:
+        condition: service_healthy
+    healthcheck:
+      test: /app/health.sh
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 384M
+    networks:
+      - backend_net
+      - database_net
+      - wazuh_soc_lan
+
+  crapi-community:
+    container_name: crapi-community
+    image: crapi/crapi-community:${VERSION:-latest}
+    volumes:
+      - crapi-community-logs:/var/log/crapi-community
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - IDENTITY_SERVICE=crapi-identity:${IDENTITY_SERVER_PORT:-8080}
+      - DB_NAME=crapi
+      - DB_USER=admin
+      - DB_PASSWORD=crapisecretpassword
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - SERVER_PORT=${COMMUNITY_SERVER_PORT:-8087}
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_USER=admin
+      - MONGO_DB_PASSWORD=crapisecretpassword
+      - MONGO_DB_NAME=crapi
+      - TLS_ENABLED=${TLS_ENABLED:-false}
+      - TLS_CERTIFICATE=certs/server.crt
+      - TLS_KEY=certs/server.key
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      crapi-identity:
+        condition: service_healthy
+    healthcheck:
+      test: /app/health.sh
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 192M
+    networks:
+      - backend_net
+      - database_net
+
+  crapi-workshop:
+    container_name: crapi-workshop
+    image: crapi/crapi-workshop:${VERSION:-latest}
+    volumes:
+      - crapi-workshop-logs:/var/log/crapi-workshop
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - IDENTITY_SERVICE=crapi-identity:${IDENTITY_SERVER_PORT:-8080}
+      - DB_NAME=crapi
+      - DB_USER=admin
+      - DB_PASSWORD=crapisecretpassword
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - SERVER_PORT=${WORKSHOP_SERVER_PORT:-8000}
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_USER=admin
+      - MONGO_DB_PASSWORD=crapisecretpassword
+      - MONGO_DB_NAME=crapi
+      - SECRET_KEY=crapi
+      - API_GATEWAY_URL=https://api.mypremiumdealership.com
+      - TLS_ENABLED=${TLS_ENABLED:-false}
+      - TLS_CERTIFICATE=certs/server.crt
+      - TLS_KEY=certs/server.key
+      - FILES_LIMIT=1000
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      crapi-identity:
+        condition: service_healthy
+      crapi-community:
+        condition: service_healthy
+    healthcheck:
+      test: /app/health.sh
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+    networks:
+      - backend_net
+      - database_net
+
+  crapi-chatbot:
+    container_name: crapi-chatbot
+    image: crapi/crapi-chatbot:${VERSION:-latest}
+    volumes:
+      - crapi-chatbot-logs:/var/log/crapi-chatbot
+    environment:
+      - TLS_ENABLED=${TLS_ENABLED:-false}
+      - SERVER_PORT=${CHATBOT_SERVER_PORT:-5002}
+      - WEB_SERVICE=crapi-web
+      - IDENTITY_SERVICE=crapi-identity:${IDENTITY_SERVER_PORT:-8080}
+      - DB_NAME=crapi
+      - DB_USER=admin
+      - DB_PASSWORD=crapisecretpassword
+      - DB_HOST=postgresdb
+      - DB_PORT=5432
+      - MONGO_DB_HOST=mongodb
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_USER=admin
+      - MONGO_DB_PASSWORD=crapisecretpassword
+      - MONGO_DB_NAME=crapi
+      - API_USER=admin@example.com
+      - API_PASSWORD=Admin!123
+      - OPENAPI_SPEC=/app/resources/crapi-openapi-spec.json
+      - CHATBOT_LLM_PROVIDER=${CHATBOT_LLM_PROVIDER:-openai}
+      - CHATBOT_EMBEDDINGS_DIMENSIONS=${CHATBOT_EMBEDDINGS_DIMENSIONS:-1536}
+      - MAX_CONTENT_LENGTH=50000
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      crapi-identity:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    networks:
+      - backend_net
+      - database_net
+
+  api.mypremiumdealership.com:
+    container_name: api.mypremiumdealership.com
+    image: crapi/gateway-service:${VERSION:-latest}
+    healthcheck:
+      test: bash -c 'echo -n "GET / HTTP/1.1\n\n" > /dev/tcp/127.0.0.1/443'
+      interval: 15s
+      timeout: 15s
+      retries: 15
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '0.1'
+          memory: 50M
+    networks:
+      - backend_net
+
+  # --- 4. VÃ™NG DATABASE ---
+  postgresdb:
+    container_name: postgresdb
+    image: 'postgres:14'
+    command: ["postgres",
+	      "-c", "max_connections=500",
+	      "-c", "logging_collector=on",
+	      "-c", "log_directory=/var/log/postgresql",
+              "-c", "log_filename=postgresql.log",
+	      "-c", "log_connections=on",
+              "-c", "log_disconnections=on",
+	      "-c", "log_statement=mod",
+	      "-c", "log_min_error_statement=error",
+       	      "-c", "log_line_prefix=%m [%p] user=%u db=%d app=%a client=%h "
+	]
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: crapisecretpassword
+      POSTGRES_DB: crapi
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 15s
+      timeout: 15s
+      retries: 15
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data/
+      - postgres-logs:/var/log/postgresql
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    networks:
+      - database_net
+      - wazuh_soc_lan
+
+  mongodb:
+    container_name: mongodb
+    image: 'mongo:4.4'
+    command: ["mongod", "--logpath", "/var/log/mongodb/mongod.log", "--logappend", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: crapisecretpassword
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
+      interval: 15s
+      timeout: 15s
+      retries: 15
+      start_period: 20s
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-logs:/var/log/mongodb
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 128M
+    networks:
+      - database_net
+
+  chromadb:
+    container_name: chromadb
+    image: 'chromadb/chroma:latest'
+    environment:
+      IS_PERSISTENT: 'TRUE'
+    healthcheck:
+      test: [ "CMD", "/bin/bash", "-c", "cat < /dev/null > /dev/tcp/localhost/8000" ]
+      interval: 15s
+      timeout: 15s
+      retries: 15
+      start_period: 20s
+    volumes:
+      - chromadb-data:/data
+    networks:
+      - database_net
+
+  # --- 5. config agent dmz ---
+  wazuh-agent-web:
+    image: wazuh/wazuh-agent:4.14.4
+    container_name: wazuh-agent-web
+    hostname: crapi-web-gateway
+    restart: unless-stopped
+    environment:
+      - WAZUH_MANAGER=single-node-wazuh.manager-1
+      - WAZUH_REGISTRATION_SERVER=single-node-wazuh.manager-1
+      - WAZUH_AGENT_NAME=crapi-web-gateway
+      - WAZUH_PROTOCOL=tcp
+    volumes:
+      - crapi-web-logs:/var/log/nginx_shared:ro
+      - ./wazuh-agent/ossec.conf:/var/ossec/etc/ossec.conf:ro
+    networks:
+      - wazuh_soc_lan
+
+  # --- 6. config agent backend ---
+  wazuh-agent-backend:
+    image: wazuh/wazuh-agent:4.14.4
+    container_name: wazuh-agent-backend
+    hostname: crapi-backend-layer
+    restart: unless-stopped
+    environment:
+      - WAZUH_MANAGER=single-node-wazuh.manager-1
+      - WAZUH_REGISTRATION_SERVER=single-node-wazuh.manager-1
+      - WAZUH_AGENT_NAME=crapi-backend-layer
+      - WAZUH_PROTOCOL=tcp
+    volumes:
+      - crapi-identity-logs:/var/log/crapi_identity_shared:ro
+      - crapi-community-logs:/var/log/crapi_community_shared:ro
+      - crapi-workshop-logs:/var/log/crapi_workshop_shared:ro
+      - crapi-chatbot-logs:/var/log/crapi_chatbot_shared:ro
+      - ./wazuh-agent/backend-ossec.conf:/var/ossec/etc/ossec.conf:ro
+    networks:
+      - backend_net
+      - wazuh_soc_lan
+
+  # --- 7. config agent database ---
+  wazuh-agent-database:
+    image: wazuh/wazuh-agent:4.14.4
+    container_name: wazuh-agent-database
+    hostname: crapi-database-layer
+    restart: unless-stopped
+    environment:
+      - WAZUH_MANAGER=single-node-wazuh.manager-1
+      - WAZUH_REGISTRATION_SERVER=single-node-wazuh.manager-1
+      - WAZUH_AGENT_NAME=crapi-database-layer
+      - WAZUH_PROTOCOL=tcp
+    volumes:
+      - postgres-logs:/var/log/postgres_shared:ro
+      - mongodb-logs:/var/log/mongodb_shared:ro
+      - ./wazuh-agent/database-ossec.conf:/var/ossec/etc/ossec.conf:ro
+    networks:
+      - database_net
+      - wazuh_soc_lan
+
+  wazuh-agent-docker:
+    image: wazuh/wazuh-agent:4.14.4
+    container_name: wazuh-agent-docker
+    hostname: crapi-docker-host
+    restart: unless-stopped
+    environment:
+      - WAZUH_MANAGER=single-node-wazuh.manager-1
+      - WAZUH_REGISTRATION_SERVER=single-node-wazuh.manager-1
+      - WAZUH_AGENT_NAME=crapi-docker-host
+      - WAZUH_PROTOCOL=tcp
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./wazuh-agent/docker-ossec.conf:/var/ossec/etc/ossec.conf:ro
+    networks:
+      - wazuh_soc_lan
+
+# --- Äá»ŠNH NGHÄ¨A CÃC Lá»šP Máº NG Äá»˜NG ---
+networks:
+  external_net:
+    driver: bridge
+  dmz_net:
+    driver: bridge
+    internal: true
+  backend_net:
+    driver: bridge
+    internal: true
+  database_net:
+    driver: bridge
+    internal: true
+
+  wazuh_soc_lan:
+    external: true
+    name: single-node_default
+
+volumes:
+  mongodb-data:
+  postgresql-data:
+  chromadb-data:
+  crapi-web-logs:
+
+  crapi-identity-logs:
+  crapi-community-logs:
+  crapi-workshop-logs:
+  crapi-chatbot-logs:
+  postgres-logs:
+  mongodb-logs:
+

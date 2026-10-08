@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.chromadb.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- with .Values.chromadb.statefulsetLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  serviceName: {{ .Values.chromadb.service.name }}
+  replicas: {{ .Values.chromadb.replicaCount }}
+  selector:
+    matchLabels:
+      {{- toYaml .Values.chromadb.statefulsetSelectorMatchLabels | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        release: {{ .Release.Name }}
+        {{- toYaml .Values.chromadb.podLabels | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Values.chromadb.name }}
+          image: {{ .Values.chromadb.image }}:{{ .Values.chromadb.version }}
+          imagePullPolicy: {{ .Values.chromadb.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.chromadb.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.chromadb.config.name }}
+          volumeMounts:
+            - mountPath: /data
+              name: chromadb-data
+      volumes:
+        - name: chromadb-data
+          persistentVolumeClaim:
+            claimName: {{ .Values.chromadb.storage.pvc.name }}
+            

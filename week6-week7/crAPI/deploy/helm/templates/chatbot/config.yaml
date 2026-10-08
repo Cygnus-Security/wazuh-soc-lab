@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.chatbot.config.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.chatbot.config.labels | nindent 4 }}
+data:
+    SERVER_PORT: {{ .Values.chatbot.port | quote }}
+    IDENTITY_SERVICE: {{ .Values.identity.service.name }}:{{ .Values.identity.port }}
+    WEB_SERVICE: {{ .Values.web.service.name }}
+    TLS_ENABLED: {{ .Values.tlsEnabled | quote }}
+    DB_HOST: {{ .Values.postgresdb.service.name }}
+    DB_USER: {{ .Values.postgresdb.config.postgresUser }}
+    DB_PASSWORD: {{ .Values.postgresdb.config.postgresPassword }}
+    DB_NAME: {{ .Values.postgresdb.config.postgresDbName }}
+    DB_PORT: {{ .Values.postgresdb.port | quote }}
+    MONGO_DB_HOST: {{ .Values.mongodb.service.name }}
+    MONGO_DB_PORT: {{ .Values.mongodb.port | quote }}
+    MONGO_DB_USER: {{ .Values.mongodb.config.mongoUser }}
+    MONGO_DB_PASSWORD: {{ .Values.mongodb.config.mongoPassword }}
+    MONGO_DB_NAME: {{ .Values.mongodb.config.mongoDbName }}
+    CHATBOT_OPENAI_API_KEY: {{ .Values.chatbotOpenaiApiKey | default .Values.openAIApiKey | quote }}
+    CHATBOT_OPENAI_BASE_URL: {{ .Values.chatbotOpenaiBaseUrl | quote }}
+    CHATBOT_LLM_PROVIDER: {{ .Values.chatbotLlmProvider | quote }}
+    CHATBOT_LLM_MODEL: {{ .Values.chatbotLlmModel | quote }}
+    CHATBOT_EMBEDDINGS_MODEL: {{ .Values.chatbotEmbeddingsModel | quote }}
+    CHATBOT_EMBEDDINGS_DIMENSIONS: {{ .Values.chatbotEmbeddingsDimensions | quote }}
+    ANTHROPIC_API_KEY: {{ .Values.anthropicApiKey | quote }}
+    AZURE_OPENAI_API_KEY: {{ .Values.azureOpenaiApiKey | quote }}
+    AZURE_AD_TOKEN: {{ .Values.azureAdToken | quote }}
+    AZURE_OPENAI_ENDPOINT: {{ .Values.azureOpenaiEndpoint | quote }}
+    AZURE_OPENAI_API_VERSION: {{ .Values.azureOpenaiApiVersion | quote }}
+    AZURE_OPENAI_CHAT_DEPLOYMENT: {{ .Values.azureOpenaiChatDeployment | quote }}
+    AZURE_OPENAI_EMBEDDINGS_DEPLOYMENT: {{ .Values.azureOpenaiEmbeddingsDeployment | quote }}
+    GROQ_API_KEY: {{ .Values.groqApiKey | quote }}
+    MISTRAL_API_KEY: {{ .Values.mistralApiKey | quote }}
+    COHERE_API_KEY: {{ .Values.cohereApiKey | quote }}
+    AWS_BEARER_TOKEN_BEDROCK: {{ .Values.awsBearerTokenBedrock | quote }}
+    AWS_ACCESS_KEY_ID: {{ .Values.awsAccessKeyId | quote }}
+    AWS_SECRET_ACCESS_KEY: {{ .Values.awsSecretAccessKey | quote }}
+    AWS_SESSION_TOKEN: {{ .Values.awsSessionToken | quote }}
+    AWS_REGION: {{ .Values.awsRegion | quote }}
+    AWS_ASSUME_ROLE_ARN: {{ .Values.awsAssumeRoleArn | quote }}
+    AWS_EXTERNAL_ID: {{ .Values.awsExternalId | quote }}
+    AWS_ROLE_SESSION_NAME: {{ .Values.awsRoleSessionName | quote }}
+    GOOGLE_APPLICATION_CREDENTIALS: {{ .Values.googleApplicationCredentials | quote }}
+    VERTEX_PROJECT: {{ .Values.vertexProject | quote }}
+    VERTEX_LOCATION: {{ .Values.vertexLocation | quote }}
+    MAX_CONTENT_LENGTH: {{ .Values.chatbot.config.maxContentLength | quote }}
+    CHROMA_HOST: {{ .Values.chromadb.service.name }}
+    CHROMA_PORT: {{ .Values.chromadb.port | quote }}
+    API_USER: {{ .Values.chatbot.config.apiUser | quote }}
+    API_PASSWORD: {{ .Values.chatbot.config.apiPassword | quote }}
+    OPENAPI_SPEC: {{ .Values.chatbot.config.openapiSpec | quote }}

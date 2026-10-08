@@ -1,0 +1,36 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
+*.csr
+api_key*
+password*
+secret*
+secrets*
+
+# Logs and captures
+*.log
+logs/
+*.pcap
+*.pcapng
+
+# Docker / runtime data
+data/
+volumes/
+wazuh-indexer-data/
+wazuh-manager-data/
+iris-db/
+postgres-data/
+mysql-data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Python cache
+__pycache__/
+*.pyc

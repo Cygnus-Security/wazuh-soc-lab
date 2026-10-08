@@ -1,0 +1,3 @@
+<decoder name="postgresql">
+  <prematch type="pcre2">user=\S+\s+db=\S+\s+app=.*\s+client=\S+\s+(LOG|ERROR|FATAL|WARNING|STATEMENT|DETAIL):</prematch>
+</decoder>

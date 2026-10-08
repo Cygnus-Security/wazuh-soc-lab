@@ -1,0 +1,5 @@
+<decoder name="bglobal-crapi-router">
+  <prematch>prefix=CRAPI_</prematch>
+  <regex>prefix=([^ ]+) SRC=([^ ]+) DST=([^ ]+) PROTO=([^ ]+) SPT=([0-9]+) DPT=([0-9]+) IN=([^ ]+)</regex>
+  <order>action,srcip,dstip,protocol,srcport,dstport,extra_data</order>
+</decoder>

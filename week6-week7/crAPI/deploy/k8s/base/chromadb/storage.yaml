@@ -1,0 +1,13 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: chromadb-pv-claim
+  labels:
+    app: chromadb
+spec:
+  #storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce 
+  resources:
+    requests:
+      storage: 1000Mi

@@ -1,0 +1,180 @@
+.ant-avatar img {
+  object-fit: scale-down;
+}
+
+.affix-button {
+  float: right;
+}
+
+.vehicle-desc {
+  background: var(--bg-component);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--border-light);
+}
+
+.vehicle-desc .ant-descriptions-view {
+  width: auto;
+}
+
+.vehicle-desc .ant-descriptions-item-label {
+  background: var(--bg-secondary);
+  width: 35%;
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-sm) 0 0 var(--border-radius-sm);
+}
+
+.vehicle-desc .ant-descriptions-item-content {
+  background: var(--bg-primary);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+}
+
+.dashboard-header {
+  padding-left: 0;
+  padding-right: 0;
+  background: var(--bg-component);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-light);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-light);
+}
+
+.dashboard-header .ant-page-header-heading-title {
+  font-size: var(--font-size-xxl);
+  font-weight: var(--font-weight-bold);
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+/* Enhanced vehicle card */
+.vehicle-card {
+  background: var(--bg-component);
+  border-radius: var(--border-radius-xl);
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.vehicle-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.vehicle-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-heavy);
+}
+
+.vehicle-card .ant-card-meta-title {
+  margin-bottom: var(--spacing-md);
+}
+
+.vehicle-card .ant-card-body {
+  padding: var(--spacing-xl);
+}
+
+.refresh-loc-btn {
+  width: 100%;
+  max-width: 400px;
+  height: 48px;
+  border-radius: var(--border-radius-lg);
+  font-weight: var(--font-weight-medium);
+  background: linear-gradient(45deg, var(--accent-color), var(--accent-hover));
+  border: none;
+  color: var(--text-inverse);
+  box-shadow: var(--shadow-medium);
+  transition: all var(--transition-normal);
+  margin-top: var(--spacing-md);
+}
+
+.refresh-loc-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-heavy);
+  background: linear-gradient(45deg, var(--accent-hover), var(--accent-color));
+}
+
+.map-iframe {
+  border: 0;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  transition: all var(--transition-normal);
+}
+
+.map-iframe:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+.alert-msg-box {
+  margin: auto;
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.alert-msg-box .ant-alert {
+  border-radius: var(--border-radius-xl);
+  border: 2px solid var(--warning-color);
+  background: linear-gradient(135deg, rgba(250, 173, 20, 0.1), rgba(250, 173, 20, 0.05));
+  box-shadow: var(--shadow-medium);
+}
+
+.alert-msg-box .btn {
+  color: var(--primary-color);
+  background-color: transparent;
+  border: none;
+  font-weight: var(--font-weight-medium);
+  text-decoration: underline;
+  transition: all var(--transition-normal);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+}
+
+.alert-msg-box .btn:hover {
+  color: var(--primary-hover);
+  background-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.alert-header {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.alert-msg {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Enhanced button styles for dashboard */
+.dashboard-header .ant-btn {
+  height: 40px;
+  border-radius: var(--border-radius-lg);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  box-shadow: var(--shadow-light);
+  transition: all var(--transition-normal);
+}
+
+.dashboard-header .ant-btn-primary {
+  background: linear-gradient(45deg, var(--primary-color), var(--primary-hover));
+}
+
+.dashboard-header .ant-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}

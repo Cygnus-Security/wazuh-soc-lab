@@ -1,0 +1,298 @@
+#!/var/ossec/framework/python/bin/python3
+
+import sys
+import json
+import ssl
+import uuid
+import urllib.parse
+import urllib.request
+import urllib.error
+from datetime import datetime
+
+LOG_FILE = "/var/ossec/logs/integrations.log"
+CUSTOMER_ID = 1
+WAZUH_DASHBOARD_BASE = "https://localhost"
+
+
+def log(message):
+    with open(LOG_FILE, "a") as f:
+        f.write(f"{datetime.utcnow().isoformat()}Z custom-wazuh_iris: {message}\n")
+
+
+def first_not_empty(*values):
+    for value in values:
+        if value is not None and value != "":
+            return value
+    return None
+
+
+def safe_str(value):
+    if value is None:
+        return ""
+    return str(value)
+
+
+def map_iris_severity(wazuh_level):
+    try:
+        level = int(wazuh_level)
+    except Exception:
+        level = 0
+
+    if level >= 13:
+        return 6
+    if level >= 10:
+        return 5
+    if level >= 7:
+        return 4
+    return 3
+
+
+def build_wazuh_discover_link(wazuh_alert_id):
+    """
+    Build Wazuh Data Explorer link with BOTH:
+    1. Search query: id:"<wazuh_alert_id>"
+    2. Filter pill: id is <wazuh_alert_id>
+
+    This is more reliable than only setting the query in _a or _q.
+    """
+    if not wazuh_alert_id:
+        return WAZUH_DASHBOARD_BASE
+
+    wazuh_alert_id = str(wazuh_alert_id).strip()
+
+    # Wazuh/OpenSearch Dashboard search query
+    search_query = f'id:"{wazuh_alert_id}"'
+
+    # _q controls the search bar query
+    q_state = (
+        f"(filters:!(),query:(language:kuery,query:'{search_query}'))"
+    )
+
+    # _g controls global state, including time range and filter pills
+    id_filter = (
+        "(meta:("
+        "alias:!n,"
+        "disabled:!f,"
+        "index:'wazuh-alerts-*',"
+        "key:id,"
+        "negate:!f,"
+        f"params:(query:'{wazuh_alert_id}'),"
+        "type:phrase"
+        "),"
+        f"query:(match_phrase:(id:'{wazuh_alert_id}'))"
+        ")"
+    )
+
+    g_state = (
+        f"(filters:!({id_filter}),"
+        "refreshInterval:(pause:!t,value:0),"
+        "time:(from:now-24h,to:now))"
+    )
+
+    # _a controls Data Explorer app state
+    a_state = (
+        "(discover:(columns:!(_source),isDirty:!f,sort:!()),"
+        "metadata:(indexPattern:'wazuh-alerts-*',view:discover))"
+    )
+
+    return (
+        f"{WAZUH_DASHBOARD_BASE}/app/data-explorer/discover#/"
+        f"?_a={urllib.parse.quote(a_state, safe='')}"
+        f"&_g={urllib.parse.quote(g_state, safe='')}"
+        f"&_q={urllib.parse.quote(q_state, safe='')}"
+    )
+
+
+def post_json(url, api_key, payload):
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+
+    req = urllib.request.Request(url, data=body, method="POST")
+    req.add_header("Authorization", f"Bearer {api_key}")
+    req.add_header("Content-Type", "application/json")
+
+    ctx = ssl._create_unverified_context()
+
+    try:
+        with urllib.request.urlopen(req, context=ctx, timeout=20) as resp:
+            response_body = resp.read().decode("utf-8", errors="replace")
+            return resp.status, response_body
+    except urllib.error.HTTPError as e:
+        response_body = e.read().decode("utf-8", errors="replace")
+        return e.code, response_body
+
+
+def main():
+    try:
+        if len(sys.argv) < 4:
+            log(f"ERROR: Missing arguments. argv={sys.argv}")
+            sys.exit(1)
+
+        alert_file = sys.argv[1]
+        api_key = sys.argv[2]
+        hook_url = sys.argv[3]
+
+        with open(alert_file, "r") as f:
+            alert = json.load(f)
+
+        event_uuid = str(uuid.uuid4())
+
+        rule = alert.get("rule", {})
+        agent = alert.get("agent", {})
+        data = alert.get("data", {})
+        decoder = alert.get("decoder", {})
+        manager = alert.get("manager", {})
+
+        wazuh_alert_id = safe_str(alert.get("id"))
+        rule_id = safe_str(rule.get("id", "unknown"))
+        rule_level = rule.get("level", 0)
+        rule_desc = rule.get("description", "Wazuh alert")
+        rule_groups = rule.get("groups", [])
+        timestamp = alert.get("timestamp", datetime.utcnow().isoformat())
+
+        srcip = first_not_empty(
+            data.get("srcip"),
+            data.get("src_ip"),
+            data.get("src"),
+            alert.get("srcip")
+        )
+
+        dstip = first_not_empty(
+            data.get("dstip"),
+            data.get("dst_ip"),
+            data.get("dst"),
+            alert.get("dstip")
+        )
+
+        srcport = first_not_empty(
+            data.get("srcport"),
+            data.get("src_port"),
+            data.get("sport"),
+            data.get("SPT")
+        )
+
+        dstport = first_not_empty(
+            data.get("dstport"),
+            data.get("dst_port"),
+            data.get("dport"),
+            data.get("DPT")
+        )
+
+        protocol = first_not_empty(
+            data.get("protocol"),
+            data.get("proto"),
+            data.get("PROTO")
+        )
+
+        method = first_not_empty(
+            data.get("method"),
+            data.get("http_method"),
+            data.get("protocol")
+        )
+
+        url = first_not_empty(
+            data.get("url"),
+            data.get("uri"),
+            data.get("request"),
+            data.get("path")
+        )
+
+        status_code = first_not_empty(
+            data.get("status"),
+            data.get("http_status"),
+            data.get("status_code"),
+            data.get("id")
+        )
+
+        user_agent = first_not_empty(
+            data.get("user_agent"),
+            data.get("useragent"),
+            data.get("http_user_agent")
+        )
+
+        full_log = alert.get("full_log")
+        location = alert.get("location")
+
+        wazuh_query = f'id:"{wazuh_alert_id}"' if wazuh_alert_id else ""
+        wazuh_link = build_wazuh_discover_link(wazuh_alert_id)
+
+        context = {
+            "event_uuid": event_uuid,
+            "wazuh_alert_id": wazuh_alert_id,
+            "wazuh_dashboard_link": wazuh_link,
+            "wazuh_search_query": wazuh_query,
+
+            "rule_id": rule_id,
+            "rule_level": rule_level,
+            "rule_description": rule_desc,
+            "rule_groups": rule_groups,
+
+            "agent_id": agent.get("id"),
+            "agent_name": agent.get("name"),
+            "agent_ip": agent.get("ip"),
+
+            "manager_name": manager.get("name"),
+            "decoder_name": decoder.get("name"),
+
+            "srcip": srcip,
+            "dstip": dstip,
+            "srcport": srcport,
+            "dstport": dstport,
+            "protocol": protocol,
+
+            "method": method,
+            "url": url,
+            "status_code": status_code,
+            "user_agent": user_agent,
+
+            "location": location,
+            "full_log": full_log
+        }
+
+        payload = {
+            "alert_title": f"Wazuh Rule {rule_id}: {rule_desc}",
+            "alert_description": rule_desc,
+            "alert_source": "Wazuh",
+
+            "alert_source_ref": event_uuid,
+            "alert_source_link": wazuh_link,
+
+            "alert_severity_id": map_iris_severity(rule_level),
+            "alert_status_id": 2,
+            "alert_context": context,
+            "alert_source_event_time": timestamp,
+
+            "alert_note": (
+                f"Automatically forwarded from Wazuh custom integration.\n"
+                f"Event UUID: {event_uuid}\n"
+                f"Wazuh alert id: {wazuh_alert_id}\n"
+                f"Wazuh query: {wazuh_query}"
+            ),
+
+            "alert_tags": "wazuh,bglobal,crapi",
+            "alert_customer_id": CUSTOMER_ID,
+            "alert_source_content": alert
+        }
+
+        status, response_body = post_json(hook_url, api_key, payload)
+
+        log(
+            f"Sent event_uuid={event_uuid} "
+            f"wazuh_alert_id={wazuh_alert_id} "
+            f"rule_id={rule_id} "
+            f"level={rule_level} "
+            f"srcip={srcip} "
+            f"url={url} "
+            f"status={status} "
+            f"response={response_body[:300]}"
+        )
+
+        if status not in (200, 201):
+            sys.exit(1)
+
+    except Exception as e:
+        log(f"ERROR: {str(e)}")
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

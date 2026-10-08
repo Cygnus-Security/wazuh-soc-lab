@@ -1,0 +1,18 @@
+FROM wazuh/wazuh-dashboard:4.14.4
+
+USER root
+
+RUN mkdir -p /usr/share/wazuh-dashboard/certs
+RUN mkdir -p /usr/share/wazuh-dashboard/data/wazuh/config
+
+COPY config/wazuh_indexer_ssl_certs/wazuh.dashboard.pem /usr/share/wazuh-dashboard/certs/wazuh-dashboard.pem
+COPY config/wazuh_indexer_ssl_certs/wazuh.dashboard-key.pem /usr/share/wazuh-dashboard/certs/wazuh-dashboard-key.pem
+COPY config/wazuh_indexer_ssl_certs/root-ca.pem /usr/share/wazuh-dashboard/certs/root-ca.pem
+
+COPY config/wazuh_dashboard/opensearch_dashboards.yml /usr/share/wazuh-dashboard/config/opensearch_dashboards.yml
+COPY config/wazuh_dashboard/wazuh.yml /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
+
+RUN chown -R 1000:0 /usr/share/wazuh-dashboard/certs /usr/share/wazuh-dashboard/config /usr/share/wazuh-dashboard/data/wazuh/config && \
+    chmod -R u+rwX,g+rX /usr/share/wazuh-dashboard/certs /usr/share/wazuh-dashboard/config /usr/share/wazuh-dashboard/data/wazuh/config
+
+USER 1000

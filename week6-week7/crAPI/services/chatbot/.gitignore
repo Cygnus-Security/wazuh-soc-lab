@@ -1,0 +1,7 @@
+faiss_index/
+envfile.txt
+retrieval/docs
+__pycache__/
+*.pyc
+db*/
+pkg/

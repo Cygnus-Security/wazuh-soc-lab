@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.chatbot.service.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- with .Values.chatbot.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  ports:
+  - port: {{ .Values.chatbot.port }}
+    name: chatbot
+  - port: {{ .Values.chatbot.mcpPort }}
+    name: mcp
+  selector:
+    {{- toYaml .Values.chatbot.serviceSelectorLabels | nindent 4 }}

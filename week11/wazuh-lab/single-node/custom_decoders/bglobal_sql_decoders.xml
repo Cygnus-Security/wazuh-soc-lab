@@ -1,0 +1,58 @@
+<decoder name="postgresql">
+  <prematch type="pcre2">user=\S+\s+db=\S+\s+app=.*\s+client=\S+\s+(LOG|ERROR|FATAL|WARNING|STATEMENT|DETAIL):</prematch>
+</decoder>
+
+<!-- File: /var/ossec/etc/decoders/local_decoder.xml -->
+
+<!-- BOLA on identity vehicle (syslog format from backend agent) -->
+<decoder name="crapi-identity-bola">
+  <parent>windows-date-format</parent>
+  <prematch>accessed vehicle=</prematch>
+  <regex>BOLA_ATTEMPT requester=(\S+) accessed vehicle=(\S+) owned_by=(\S+) src_ip=(\S+) url=(\S+)</regex>
+  <order>srcuser,id,dstuser,srcip,url</order>
+</decoder>
+
+<!-- BOLA on identity vehicle (Docker JSON format) -->
+<decoder name="crapi-identity-bola-docker">
+  <parent>json</parent>
+  <prematch>accessed vehicle=</prematch>
+  <regex>BOLA_ATTEMPT requester=(\S+) accessed vehicle=(\S+) owned_by=(\S+) src_ip=(\S+) url=(\S+)</regex>
+  <order>srcuser,id,dstuser,srcip,url</order>
+</decoder>
+
+<decoder name="crapi-identity-unauth">
+  <parent>windows-date-format</parent>
+  <prematch>UNAUTH_ACCESS</prematch>
+  <regex>UNAUTH_ACCESS src_ip=(\S+) method=(\S+) url=(\S+)</regex>
+  <order>srcip,protocol,url</order>
+</decoder>
+
+<decoder name="crapi-identity-unauth-docker">
+  <parent>json</parent>
+  <prematch>UNAUTH_ACCESS</prematch>
+  <regex>UNAUTH_ACCESS src_ip=(\S+) method=(\S+) url=(\S+)</regex>
+  <order>srcip,protocol,url</order>
+</decoder>
+
+<decoder name="nginx-json-access">
+    <parent>json</parent>
+    <prematch>"request_id":</prematch>
+    <regex type="pcre2">"src_ip":"([\d.]+)".*?"method":"(\w+)".*?"uri_path":"([^"]+)".*?"http_status":(\d+).*?"auth_present":"([^"]+)"</regex>
+    <order>srcip,protocol,url,id,status</order>
+</decoder>
+
+<!-- BOLA on workshop orders (syslog format from backend agent) -->
+<decoder name="crapi-workshop-bola">
+  <parent>windows-date-format</parent>
+  <prematch>accessed order=</prematch>
+  <regex>BOLA_ATTEMPT requester=(\S+) accessed order=(\S+) owned_by=(\S+) src_ip=(\S+) url=(\S+)</regex>
+  <order>srcuser,id,dstuser,srcip,url</order>
+</decoder>
+
+<!-- BOLA on workshop orders (Docker JSON format) -->
+<decoder name="crapi-workshop-bola-docker">
+  <parent>json</parent>
+  <prematch>accessed order=</prematch>
+  <regex type="pcre2">BOLA_ATTEMPT requester=(\S+) accessed order=(\S+) owned_by=(\S+) src_ip=(\S+) url=([^\s\\"]+)</regex>
+  <order>srcuser,id,dstuser,srcip,url</order>
+</decoder>

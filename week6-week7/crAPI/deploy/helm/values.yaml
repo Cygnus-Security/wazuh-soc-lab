@@ -1,0 +1,422 @@
+# Default values for crapi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+jwtSecret: crapi
+enableLog4j: true
+enableShellInjection: true
+imagePullPolicy: Always
+apiGatewayServiceUrl: https://api.mypremiumdealership.com
+apiGatewayServiceInstall: true
+apiGatewayPassword:
+tlsEnabled: false
+jwtExpiration: 604800000
+logLevel: INFO
+
+# Chatbot LLM Configuration
+chatbotLlmProvider: openai
+chatbotLlmModel: ""
+chatbotEmbeddingsModel: ""
+chatbotEmbeddingsDimensions: 1536
+
+# OpenAI API Key
+chatbotOpenaiApiKey: ""
+openAIApiKey: "" # for backward compatibility
+
+# OpenAI Base URL (for DeepSeek or other OpenAI-compatible APIs)
+chatbotOpenaiBaseUrl: ""
+
+# Anthropic API Key
+anthropicApiKey: ""
+
+# Azure configuration
+azureOpenaiApiKey: ""
+azureAdToken: ""
+azureOpenaiEndpoint: ""
+azureOpenaiApiVersion: 2024-02-15-preview
+azureOpenaiChatDeployment: ""
+azureOpenaiEmbeddingsDeployment: ""
+
+# Groq API Key
+groqApiKey: ""
+
+# Mistral API Key
+mistralApiKey: ""
+
+# Cohere API Key
+cohereApiKey: ""
+
+# AWS Bedrock configuration
+awsBearerTokenBedrock: ""
+awsAccessKeyId: ""
+awsSecretAccessKey: ""
+awsSessionToken: ""
+awsRegion: ""
+# AWS IAM Assume Role configuration (optional - use instead of static credentials)
+awsAssumeRoleArn: ""
+awsExternalId: ""
+awsRoleSessionName: "crapi-chatbot-session"
+
+# Google Vertex AI configuration
+googleApplicationCredentials: ""
+vertexProject: ""
+vertexLocation: ""
+
+waitForK8sResources:
+  enabled: True
+  image: groundnuty/k8s-wait-for:v2.0
+  imagePullPolicy: IfNotPresent
+
+web:
+  name: crapi-web
+  image: crapi/crapi-web
+  replicaCount: 1
+  port: 80
+  sslPort: 443
+  service:
+    name: crapi-web
+    labels:
+      app: crapi-web
+    nodePort: 30080
+    sslNodePort: 30443
+  config:
+    name: crapi-web-configmap
+    labels:
+      app: crapi-web
+  deploymentLabels:
+    app: crapi-web
+  podLabels:
+    app: crapi-web
+  deploymentSelectorMatchLabels:
+    app: crapi-web
+  serviceSelectorLabels:
+    app: crapi-web
+
+identity:
+  name: crapi-identity
+  image: crapi/crapi-identity
+  port: 8080
+  replicaCount: 1
+  service:
+    name: crapi-identity
+    labels:
+      app: crapi-identity
+  jwtKeySecret:
+    name: jwt-key-secret
+    file: keys/jwks.json
+    labels:
+      app: crapi-identity
+  config:
+    name: crapi-identity-configmap
+    labels:
+      app: crapi-identity
+    postgresDbDriver: postgresql
+    appName: "crapi-identity"
+    mailhogDomain: "example.com"
+    smtpHost: "smtp.example.com"
+    smtpPort: 587
+    smtpEmail: "user@example.com"
+    smtpPass: "xxxxxxxxxxxxxx"
+    smtpFrom: "no-reply@example.com"
+    smtpAuth: true
+    smtpStartTLS: true
+    keyStoreType: PKCS12
+    keyStore: classpath:certs/server.p12
+    keyStorePassword: passw0rd
+    keyPassword: passw0rd
+    keyAlias: identity
+  deploymentLabels:
+    app: crapi-identity
+  podLabels:
+    app: crapi-identity
+  deploymentSelectorMatchLabels:
+    app: crapi-identity
+  serviceSelectorLabels:
+    app: crapi-identity
+
+community:
+  name: crapi-community
+  image: crapi/crapi-community
+  port: 8087
+  replicaCount: 1
+  service:
+    name: crapi-community
+    labels:
+      app: crapi-community
+  config:
+    name: crapi-community-configmap
+    labels:
+      app: crapi-community
+    postgresDbDriver: postgres
+    mongoDbDriver: mongodb
+  deploymentLabels:
+    app: crapi-community
+  podLabels:
+    app: crapi-community
+  deploymentSelectorMatchLabels:
+    app: crapi-community
+  serviceSelectorLabels:
+    app: crapi-community
+
+workshop:
+  name: crapi-workshop
+  image: crapi/crapi-workshop
+  port: 8000
+  replicaCount: 1
+  service:
+    name: crapi-workshop
+    labels:
+      app: crapi-workshop
+  config:
+    name: crapi-workshop-configmap
+    labels:
+      app: crapi-workshop
+    postgresDbDriver: postgres
+    mongoDbDriver: mongodb
+    secretKey: crapi
+    filesLimit: 1000
+  deploymentLabels:
+    app: crapi-workshop
+  podLabels:
+    app: crapi-workshop
+  deploymentSelectorMatchLabels:
+    app: crapi-workshop
+  serviceSelectorLabels:
+    app: crapi-workshop
+
+chatbot:
+  name: crapi-chatbot
+  image: crapi/crapi-chatbot
+  port: 5002
+  mcpPort: 5500
+  replicaCount: 1
+  service:
+    name: crapi-chatbot
+    labels:
+      app: crapi-chatbot
+    mcpNodePort: 30500
+  config:
+    name: crapi-chatbot-configmap
+    labels:
+      app: crapi-chatbot
+    postgresDbDriver: postgres
+    mongoDbDriver: mongodb
+    secretKey: crapi
+    maxContentLength: 50000
+    chromaPersistDirectory: /app/vectorstore
+    apiUser: admin@example.com
+    apiPassword: Admin!123
+    openapiSpec: /app/resources/crapi-openapi-spec.json
+  storage:
+    # type: "manual"
+    # pv:
+    #   name: chatbot-vectors-pv
+    #   labels:
+    #     app: crapi-chatbot
+    #   resources:
+    #     storage: 1Gi
+    #   hostPath: /mnt/vectorstore
+    type: "default"
+    pvc:
+      name: chatbot-vectors-pv-claim
+      labels:
+        app: crapi-chatbot
+      resources:
+        requests:
+          storage: 1Gi
+  deploymentLabels:
+    app: crapi-chatbot
+  podLabels:
+    app: crapi-chatbot
+  deploymentSelectorMatchLabels:
+    app: crapi-chatbot
+  serviceSelectorLabels:
+    app: crapi-chatbot
+
+mailhog:
+  name: mailhog
+  image: crapi/mailhog
+  webPort: 8025
+  smtpPort: 1025
+  replicaCount: 1
+  minReadySeconds: 10
+  progressDeadlineSeconds: 600
+  namespace: {{ .Release.Namespace }}
+  smtpService:
+    name: mailhog
+    labels:
+      app: mailhog
+  webService:
+    name: mailhog-web
+    labels:
+      app: mailhog
+    nodePort: 30025
+  config:
+    name: mailhog-configmap
+    labels:
+      app: mailhog
+    mailhogStorage: mongodb
+  deploymentLabels:
+    app: mailhog
+  podLabels:
+    app: mailhog
+  podAnnotations:
+    sidecar.traceable.ai/inject: "false"
+  deploymentSelectorMatchLabels:
+    app: mailhog
+  serviceSelectorLabels:
+    app: mailhog
+
+mongodb:
+  name: mongodb
+  image: mongo
+  version: 5.0
+  imagePullPolicy: IfNotPresent
+  port: 27017
+  replicaCount: 1
+  service:
+    name: mongodb
+    labels:
+      app: mongodb
+  config:
+    name: mongodb-config
+    labels:
+      app: mongodb
+    mongoUser: admin
+    mongoPassword: crapisecretpassword
+    mongoDbName: crapi
+    mongoUri: "admin:crapisecretpassword@mongodb:27017"
+  storage: 
+    # type: "manual"
+    # pv:
+    #   name: mongodb-pv
+    #   labels:
+    #     app: mongodb
+    #   resources:
+    #     storage: 2Gi
+    #   hostPath: /mnt/test
+    type: "default"
+    pvc:
+      name: mongodb-pv-claim
+      labels:
+        app: mongodb
+      resources:
+        requests:
+          storage: 2Gi
+  serviceSelectorLabels:
+    app: mongodb
+  podLabels:
+    app: mongodb
+  statefulsetLabels:
+    app: mongodb
+  statefulsetSelectorMatchLabels:
+    app: mongodb
+
+postgresdb:
+  name: postgresdb
+  image: postgres
+  version: 14
+  imagePullPolicy: IfNotPresent
+  port: 5432
+  replicaCount: 1
+  service:
+    name: postgresdb
+    labels:
+      app: postgresdb
+  config:
+    name: postgres-config
+    labels:
+      app: postgresdb
+    postgresUser: admin
+    postgresPassword: crapisecretpassword
+    postgresDbName: crapi
+  storage:
+    # type: "manual"
+    # pv:
+    #   name: postgres-pv
+    #   labels:
+    #     app: postgresdb
+    #   resources:
+    #     storage: 2Gi
+    #   hostPath: /mnt/test
+    type: "default"
+    pvc:
+      name: postgres-pv-claim
+      labels:
+        app: postgresdb
+      resources:
+        requests:
+          storage: 2Gi
+  serviceSelectorLabels:
+    app: postgresdb
+  podLabels:
+    app: postgresdb
+  statefulsetLabels:
+    app: postgresdb
+  statefulsetSelectorMatchLabels:
+    app: postgresdb
+
+apiGatewayService:
+  name: gateway-service
+  image: crapi/gateway-service
+  port: 443
+  replicaCount: 1
+  service:
+    name: "gateway-service"
+    labels:
+      app: gateway-service
+  config:
+    name: gateway-service
+    labels:
+      app: gateway-service
+  deploymentLabels:
+    app: gateway-service
+  podLabels:
+    app: gateway-service
+  deploymentSelectorMatchLabels:
+    app: gateway-service
+  serviceSelectorLabels:
+    app: gateway-service
+
+
+chromadb:
+  name: chromadb
+  image: chromadb/chroma
+  version: latest
+  imagePullPolicy: IfNotPresent
+  port: 8000
+  replicaCount: 1
+  service:
+    name: chromadb
+    labels:
+      app: chromadb
+  config:
+    name: chromadb-config
+    labels:
+      app: chromadb
+    isPersistent: true
+  storage:
+    # type: "manual"
+    # pv:
+    #   name: chromadb-pv
+    #   labels:
+    #     app: chromadb
+    #   resources:
+    #     storage: 1Gi
+    #   hostPath: /mnt/chromadb
+    type: "default"
+    pvc:
+      name: chromadb-pv-claim
+      labels:
+        app: chromadb
+      resources:
+        requests:
+          storage: 2Gi
+  serviceSelectorLabels:
+    app: chromadb
+  podLabels:
+    app: chromadb
+  statefulsetLabels:
+    app: chromadb
+  statefulsetSelectorMatchLabels:
+    app: chromadb

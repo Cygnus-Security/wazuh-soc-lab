@@ -1,0 +1,413 @@
+<group name="bglobal,crapi,api,broken_access_control,">
+
+  <!-- ========================================================= -->
+  <!-- BOLA / IDOR: Numeric object identifier access             -->
+  <!-- ========================================================= -->
+
+  <!-- 2xx / 3xx API object access -->
+  <rule id="110100" level="8">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)^/api/(v[0-9]+/)?(user|users|vehicle|vehicles|order|orders|account|accounts|profile)/[0-9]+</url>
+    <options>no_full_log</options>
+    <description>bGlobal: API Object ID Access Pattern Detected - 2xx/3xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola_object_access,</group>
+  </rule>
+
+  <!-- Test rule disabled after confirming custom rule loading
+  <rule id="110999" level="10">
+    <if_sid>31108</if_sid>
+    <options>no_full_log</options>
+    <description>bGlobal TEST: Custom rule loaded and matched 31108</description>
+    <group>bglobal,crapi,test_rule,</group>
+  </rule>
+  -->
+
+  <!-- 4xx API object access -->
+  <rule id="110104" level="8">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)^/api/(v[0-9]+/)?(user|users|vehicle|vehicles|order|orders|account|accounts|profile)/[0-9]+</url>
+    <options>no_full_log</options>
+    <description>bGlobal: API Object ID Access Pattern Detected - 4xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola_object_access,</group>
+  </rule>
+
+  <!-- 5xx API object access -->
+  <rule id="110105" level="9">
+    <if_sid>31122</if_sid>
+    <id>^5[0-9][0-9]$</id>
+    <url type="pcre2">(?i)^/api/(v[0-9]+/)?(user|users|vehicle|vehicles|order|orders|account|accounts|profile)/[0-9]+</url>
+    <options>no_full_log</options>
+    <description>bGlobal: API Object ID Access Pattern Detected - 5xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola_object_access,</group>
+  </rule>
+
+  <!-- Correlation: repeated object access from same source IP -->
+  <rule id="110101" level="13" frequency="10" timeframe="300" ignore="300">
+    <if_matched_group>bola_object_access</if_matched_group>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BOLA/IDOR - Repeated API Object Access From Same Source IP</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,correlation,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- BOLA / IDOR: UUID-based vehicle location access           -->
+  <!-- ========================================================= -->
+
+  <!-- BOLA/IDOR: vehicle location access using UUID-like object identifier - 2xx/3xx -->
+  <rule id="110120" level="8">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)^/identity/api/v[0-9]+/vehicle/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/location</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BOLA/IDOR - Vehicle Location Object Access</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola_uuid_access,</group>
+  </rule>
+
+  <!-- BOLA/IDOR: failed vehicle location object access - 403/404 -->
+  <rule id="110121" level="10">
+    <if_sid>31101</if_sid>
+    <id>^(401|403|404)$</id>
+    <url type="pcre2">(?i)/identity/api/v[0-9]+/vehicle/.*/location/?</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BOLA/IDOR - Failed Vehicle Location Object Access</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola_uuid_access,</group>
+  </rule>
+
+  <!-- Correlation: repeated UUID-based BOLA access from same source IP -->
+  <rule id="110122" level="13" frequency="5" timeframe="120" ignore="300">
+    <if_matched_group>bola_uuid_access</if_matched_group>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BOLA/IDOR Enumeration - Repeated Vehicle Location Object Access</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,broken_access_control,bola,correlation,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- Sensitive path probing                                    -->
+  <!-- Note: /admin is handled by BFLA-specific rules below.      -->
+  <!-- ========================================================= -->
+
+  <!-- 2xx / 3xx sensitive path probing -->
+  <rule id="110102" level="8">
+    <if_sid>31108</if_sid>
+    <id>^[23][0-9][0-9]$</id>
+    <url type="pcre2">(?i)(/\.env|/\.git|/swagger|/api-docs|/actuator|/phpmyadmin|/server-status)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: T1595 - Suspicious API/Web Sensitive Path Probing - 2xx/3xx</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,recon,sensitive_path_probe,</group>
+  </rule>
+
+  <!-- 4xx sensitive path probing -->
+  <rule id="110106" level="8">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)(/\.env|/\.git|/swagger|/api-docs|/actuator|/phpmyadmin|/server-status)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: T1595 - Suspicious API/Web Sensitive Path Probing - 4xx</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,recon,sensitive_path_probe,</group>
+  </rule>
+
+  <!-- 5xx sensitive path probing -->
+  <rule id="110107" level="9">
+    <if_sid>31122</if_sid>
+    <id>^5[0-9][0-9]$</id>
+    <url type="pcre2">(?i)(/\.env|/\.git|/swagger|/api-docs|/actuator|/phpmyadmin|/server-status)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: T1595 - Suspicious API/Web Sensitive Path Probing - 5xx</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,recon,sensitive_path_probe,</group>
+  </rule>
+
+  <!-- Correlation: repeated sensitive path probing -->
+  <rule id="110103" level="12" frequency="10" timeframe="300" ignore="300">
+    <if_matched_group>sensitive_path_probe</if_matched_group>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: T1595 - Repeated API/Web Sensitive Path Probing From Same Source IP</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,recon,correlation,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- Web brute force / authentication scanning                 -->
+  <!-- ========================================================= -->
+
+  <!-- Web authentication failure on crAPI Identity API: 4xx -->
+  <rule id="110200" level="6">
+    <if_sid>31101</if_sid>
+    <id>^(400|401|403|404|429)$</id>
+    <url type="pcre2">(?i)^/identity/api/auth/(login|verify)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: crAPI Web Authentication Failure Detected</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,authentication_failed,web_bruteforce,</group>
+  </rule>
+
+  <!-- Web brute force: repeated 4xx authentication failures from same source IP -->
+  <rule id="110201" level="12" frequency="5" timeframe="120" ignore="300">
+    <if_matched_sid>110200</if_matched_sid>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: Possible Web Brute Force - Repeated Authentication Failures From Same Source IP</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,bruteforce,correlation,</group>
+  </rule>
+
+  <!-- Authentication attempt with 2xx/3xx response -->
+  <rule id="110202" level="3">
+    <if_sid>31108</if_sid>
+    <id>^[23][0-9][0-9]$</id>
+    <url type="pcre2">(?i)^/identity/api/auth/(login|verify)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: crAPI Authentication Attempt Observed - 2xx/3xx</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,auth_attempt,</group>
+  </rule>
+
+  <!-- High-rate authentication attempts when application returns 2xx/3xx -->
+  <rule id="110203" level="10" frequency="20" timeframe="300" ignore="300">
+    <if_matched_sid>110202</if_matched_sid>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: Possible Web Brute Force - High Rate Authentication Attempts With 2xx/3xx Responses</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,bruteforce,correlation,</group>
+  </rule>
+
+  <!-- Authentication endpoint scanning / probing: unknown auth-related path -->
+  <rule id="110204" level="9">
+    <if_sid>31101</if_sid>
+    <id>^404$</id>
+    <url type="pcre2">(?i)^/identity/api/auth/</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible Authentication Endpoint Scanning Against crAPI Identity API</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,recon,auth_endpoint_scanning,</group>
+  </rule>
+
+  <!-- Repeated authentication endpoint scanning from same source IP -->
+  <rule id="110205" level="11" frequency="10" timeframe="300" ignore="300">
+    <if_matched_sid>110204</if_matched_sid>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: T1595 - Repeated Authentication Endpoint Scanning From Same Source IP</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,authentication,recon,correlation,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- SSRF detection                                            -->
+  <!-- Works when the suspicious URL appears in access log URL.  -->
+  <!-- ========================================================= -->
+
+  <!-- SSRF attempt against Contact Mechanic endpoint - 2xx/3xx -->
+  <rule id="110300" level="10">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)^/workshop/api/merchant/contact_mechanic.*(localhost|127\.0\.0\.1|0\.0\.0\.0|169\.254\.169\.254|10\.[0-9]{1,3}\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible SSRF Attempt Against crAPI Contact Mechanic Endpoint - 2xx/3xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,ssrf,web_attack,</group>
+  </rule>
+
+  <!-- SSRF attempt against Contact Mechanic endpoint - 4xx -->
+  <rule id="110301" level="10">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)^/workshop/api/merchant/contact_mechanic.*(localhost|127\.0\.0\.1|0\.0\.0\.0|169\.254\.169\.254|10\.[0-9]{1,3}\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[0-1])\.)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible SSRF Attempt Against crAPI Contact Mechanic Endpoint - 4xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,ssrf,web_attack,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- SQL Injection / NoSQL Injection detection                 -->
+  <!-- Works when injection indicators appear in URL/query.      -->
+  <!-- ========================================================= -->
+
+  <!-- SQL Injection and NoSQL Injection indicators in URL/query string - 2xx/3xx -->
+  <rule id="110310" level="10">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)(union(%20|\+|\s)+select|or(%20|\+|\s)+1=1|sleep\(|benchmark\(|information_schema|%27|--|/\*|\$ne|\$gt|\$where|\$regex|\$or|\$and)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible SQLi/NoSQLi Pattern Detected in API Request URL - 2xx/3xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,injection,sqli,nosqli,web_attack,</group>
+  </rule>
+
+  <!-- SQL Injection and NoSQL Injection indicators in URL/query string - 4xx -->
+  <rule id="110311" level="10">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)(union(%20|\+|\s)+select|or(%20|\+|\s)+1=1|sleep\(|benchmark\(|information_schema|%27|--|/\*|\$ne|\$gt|\$where|\$regex|\$or|\$and)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible SQLi/NoSQLi Pattern Detected in API Request URL - 4xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,injection,sqli,nosqli,web_attack,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- BFLA / Admin endpoint access                              -->
+  <!-- ========================================================= -->
+
+  <!-- BFLA: successful or redirected access to admin/internal/management endpoint -->
+  <rule id="110400" level="10">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)(^|/)(admin|internal|management)(/|$)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BFLA - Access to Admin/Internal Endpoint</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,bfla,admin_access,broken_function_level_authorization,</group>
+  </rule>
+
+  <!-- BFLA: probing admin/internal/management endpoint with 401/403/404 -->
+  <rule id="110401" level="8">
+    <if_sid>31101</if_sid>
+    <id>^(401|403|404)$</id>
+    <url type="pcre2">(?i)(^|/)(admin|internal|management)(/|$)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible BFLA/Admin Endpoint Probing</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,bfla,admin_probe,broken_function_level_authorization,</group>
+  </rule>
+
+  <!-- Repeated BFLA/admin endpoint probing from same source IP -->
+  <rule id="110402" level="12" frequency="5" timeframe="120" ignore="300">
+    <if_matched_sid>110401</if_matched_sid>
+    <same_srcip />
+    <options>no_full_log</options>
+    <description>bGlobal: Repeated BFLA/Admin Endpoint Probing From Same Source IP</description>
+    <mitre>
+      <id>T1595</id>
+    </mitre>
+    <group>bglobal,crapi,api,bfla,admin_probe,correlation,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- JWT alg:none heuristic                                    -->
+  <!-- Requires JWT/header/token to appear in logged URL/query.   -->
+  <!-- For accurate JWT detection, use WAF/app/header logs.       -->
+  <!-- ========================================================= -->
+
+  <!-- JWT alg:none indicator in URL/query string or logged request data - 2xx/3xx -->
+  <rule id="110500" level="12">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)(alg(%22|")?\s*(:|%3a)\s*(%22|")?none|eyJhbGciOiJub25l|eyJhbGciOiAibm9uZSI)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible JWT Authentication Bypass Attempt - alg none</description>
+    <mitre>
+      <id>T1550</id>
+    </mitre>
+    <group>bglobal,crapi,api,jwt,authentication_bypass,web_attack,</group>
+  </rule>
+
+  <!-- JWT alg:none indicator in URL/query string or logged request data - 4xx -->
+  <rule id="110501" level="12">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)(alg(%22|")?\s*(:|%3a)\s*(%22|")?none|eyJhbGciOiJub25l|eyJhbGciOiAibm9uZSI)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible JWT Authentication Bypass Attempt - alg none - 4xx</description>
+    <mitre>
+      <id>T1550</id>
+    </mitre>
+    <group>bglobal,crapi,api,jwt,authentication_bypass,web_attack,</group>
+  </rule>
+
+
+  <!-- ========================================================= -->
+  <!-- Mass Assignment heuristic                                 -->
+  <!-- Requires suspicious fields to appear in logged URL/query.  -->
+  <!-- For accurate detection, use WAF/app/body logs.             -->
+  <!-- ========================================================= -->
+
+  <!-- Mass Assignment indicators in URL/query string - 2xx/3xx -->
+  <rule id="110510" level="10">
+    <if_sid>31108</if_sid>
+    <url type="pcre2">(?i)^/identity/api/v[0-9]+/user/(dashboard|profile|settings).*(role|isAdmin|admin|balance|credit|wallet|permission|permissions)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible Mass Assignment Attempt Against User Endpoint - 2xx/3xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,mass_assignment,broken_access_control,web_attack,</group>
+  </rule>
+
+  <!-- Mass Assignment indicators in URL/query string - 4xx -->
+  <rule id="110511" level="10">
+    <if_sid>31101</if_sid>
+    <id>^4[0-9][0-9]$</id>
+    <url type="pcre2">(?i)^/identity/api/v[0-9]+/user/(dashboard|profile|settings).*(role|isAdmin|admin|balance|credit|wallet|permission|permissions)</url>
+    <options>no_full_log</options>
+    <description>bGlobal: Possible Mass Assignment Attempt Against User Endpoint - 4xx</description>
+    <mitre>
+      <id>T1190</id>
+    </mitre>
+    <group>bglobal,crapi,api,mass_assignment,broken_access_control,web_attack,</group>
+  </rule>
+
+</group>

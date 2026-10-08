@@ -1,0 +1,33 @@
+{{- if eq .Values.postgresdb.storage.type "manual" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Values.postgresdb.storage.pv.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.postgresdb.storage.pv.labels | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.postgresdb.storage.type }}
+  capacity:
+    storage: {{ .Values.postgresdb.storage.pv.resources.storage }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.postgresdb.storage.pv.hostPath }}
+---
+{{- end }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.postgresdb.storage.pvc.name }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- toYaml .Values.postgresdb.storage.pvc.labels | nindent 4 }}
+spec:
+  {{- if ne .Values.postgresdb.storage.type "default" }}
+  storageClassName: {{ .Values.postgresdb.storage.type }}
+  {{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    {{- toYaml .Values.postgresdb.storage.pvc.resources | nindent 4 }}

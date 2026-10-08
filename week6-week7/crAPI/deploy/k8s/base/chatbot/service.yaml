@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: crapi-chatbot
+  labels:
+    app: crapi-chatbot
+spec:
+  ports:
+  - port: 5002
+    name: chatbot
+  - port: 5500
+    name: mcp
+  selector:
+    app: crapi-chatbot
